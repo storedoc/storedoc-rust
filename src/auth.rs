@@ -1,7 +1,7 @@
-use std::time::{SystemTime, UNIX_EPOCH};
 use hmac::{Hmac, Mac};
 use rand::RngCore;
 use sha2::Sha256;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::errors::{Result, StoreDocError};
 use crate::types::{AuthMode, StoreDocConfig};
@@ -77,7 +77,11 @@ pub fn generate_hmac_signature(
 }
 
 /// Build authentication header `(name, value)` for a request.
-pub fn build_auth_header(method: &str, uri: &str, config: &StoreDocConfig) -> Result<(String, String)> {
+pub fn build_auth_header(
+    method: &str,
+    uri: &str,
+    config: &StoreDocConfig,
+) -> Result<(String, String)> {
     match config.auth_mode {
         AuthMode::Bearer => {
             let token = config
@@ -97,7 +101,12 @@ pub fn build_auth_header(method: &str, uri: &str, config: &StoreDocConfig) -> Re
             let secret_key = config.secret_key.as_deref().map(str::trim).unwrap_or("");
 
             if access_key.is_empty() || secret_key.is_empty() {
-                if let Some(token) = config.token.as_deref().map(str::trim).filter(|t| !t.is_empty()) {
+                if let Some(token) = config
+                    .token
+                    .as_deref()
+                    .map(str::trim)
+                    .filter(|t| !t.is_empty())
+                {
                     return Ok(("Authorization".into(), format!("Bearer {token}")));
                 }
                 return Err(StoreDocError::Authentication(

@@ -53,13 +53,17 @@ impl HttpClient {
             .timeout(config.timeout)
             .redirect(reqwest::redirect::Policy::none())
             .build()
-            .map_err(|e| StoreDocError::InvalidConfig(format!("Failed to build HTTP client: {e}")))?;
+            .map_err(|e| {
+                StoreDocError::InvalidConfig(format!("Failed to build HTTP client: {e}"))
+            })?;
 
         let no_redirect_client = reqwest::Client::builder()
             .timeout(config.timeout)
             .redirect(reqwest::redirect::Policy::none())
             .build()
-            .map_err(|e| StoreDocError::InvalidConfig(format!("Failed to build HTTP client: {e}")))?;
+            .map_err(|e| {
+                StoreDocError::InvalidConfig(format!("Failed to build HTTP client: {e}"))
+            })?;
 
         Ok(Self {
             config,
@@ -71,10 +75,9 @@ impl HttpClient {
 
     fn build_url(&self, path: &str, query: Option<&[(String, String)]>) -> Result<(Url, String)> {
         let clean = path.trim_start_matches('/');
-        let mut url = self
-            .base_url
-            .join(clean)
-            .map_err(|e| StoreDocError::InvalidConfig(format!("Invalid request path '{path}': {e}")))?;
+        let mut url = self.base_url.join(clean).map_err(|e| {
+            StoreDocError::InvalidConfig(format!("Invalid request path '{path}': {e}"))
+        })?;
 
         if let Some(params) = query {
             if !params.is_empty() {
@@ -124,12 +127,12 @@ impl HttpClient {
     ) -> Result<T> {
         let (url, sign_uri) = self.build_url(path, query)?;
         let body_bytes = match body {
-            Some(b) => Some(serde_json::to_vec(b).map_err(|e| {
-                StoreDocError::Validation {
+            Some(b) => Some(
+                serde_json::to_vec(b).map_err(|e| StoreDocError::Validation {
                     message: format!("Failed to serialize request body: {e}"),
                     errors: None,
-                }
-            })?),
+                })?,
+            ),
             None => None,
         };
 
@@ -142,7 +145,8 @@ impl HttpClient {
         let mut attempt = 0;
         loop {
             attempt += 1;
-            let (auth_name, auth_val) = build_auth_header(method.as_str(), &sign_uri, &self.config)?;
+            let (auth_name, auth_val) =
+                build_auth_header(method.as_str(), &sign_uri, &self.config)?;
 
             let mut req = self
                 .client
@@ -178,11 +182,12 @@ impl HttpClient {
                         StoreDocError::InvalidResponse(format!("Empty response decode failed: {e}"))
                     });
                 }
-                let text = resp.text().await.map_err(|e| StoreDocError::Network(e.to_string()))?;
+                let text = resp
+                    .text()
+                    .await
+                    .map_err(|e| StoreDocError::Network(e.to_string()))?;
                 return serde_json::from_str::<T>(&text).map_err(|e| {
-                    StoreDocError::InvalidResponse(format!(
-                        "Failed to parse JSON response: {e}"
-                    ))
+                    StoreDocError::InvalidResponse(format!("Failed to parse JSON response: {e}"))
                 });
             }
 
@@ -221,7 +226,10 @@ impl HttpClient {
             })?;
 
         if resp.status().is_success() {
-            let text = resp.text().await.map_err(|e| StoreDocError::Network(e.to_string()))?;
+            let text = resp
+                .text()
+                .await
+                .map_err(|e| StoreDocError::Network(e.to_string()))?;
             return serde_json::from_str::<T>(&text).map_err(|e| {
                 StoreDocError::InvalidResponse(format!("Failed to parse JSON response: {e}"))
             });
@@ -257,7 +265,9 @@ impl HttpClient {
                     .get(reqwest::header::LOCATION)
                     .and_then(|v| v.to_str().ok())
                     .ok_or_else(|| {
-                        StoreDocError::InvalidResponse("Redirect response missing Location header".into())
+                        StoreDocError::InvalidResponse(
+                            "Redirect response missing Location header".into(),
+                        )
                     })?;
 
                 let next_url = current_url.join(location).map_err(|e| {
@@ -278,12 +288,16 @@ impl HttpClient {
             return Ok(resp);
         }
 
-        Err(StoreDocError::Network("Too many redirects while downloading object".into()))
+        Err(StoreDocError::Network(
+            "Too many redirects while downloading object".into(),
+        ))
     }
 
     fn backoff_delay(&self, attempt: u32) -> Duration {
         let base = self.config.retry_delay.as_millis() as u64;
-        let factor = 1u64.checked_shl(attempt.saturating_sub(1)).unwrap_or(u64::MAX);
+        let factor = 1u64
+            .checked_shl(attempt.saturating_sub(1))
+            .unwrap_or(u64::MAX);
         Duration::from_millis(base.saturating_mul(factor).min(MAX_RETRY_DELAY_MS))
     }
 
@@ -329,10 +343,9 @@ impl HttpClient {
             403 => StoreDocError::Forbidden(message),
             404 => StoreDocError::NotFound(message),
             422 => {
-                let errors = parsed
-                    .as_ref()
-                    .and_then(|v| v.get("errors"))
-                    .and_then(|e| serde_json::from_value::<HashMap<String, Vec<String>>>(e.clone()).ok());
+                let errors = parsed.as_ref().and_then(|v| v.get("errors")).and_then(|e| {
+                    serde_json::from_value::<HashMap<String, Vec<String>>>(e.clone()).ok()
+                });
                 StoreDocError::Validation { message, errors }
             }
             429 => StoreDocError::RateLimit(message),

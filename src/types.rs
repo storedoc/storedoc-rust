@@ -1,6 +1,6 @@
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::Duration;
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -37,14 +37,22 @@ impl StoreDocConfig {
         }
     }
 
-    pub fn with_hmac(mut self, access_key_id: impl Into<String>, secret_key: impl Into<String>) -> Self {
+    pub fn with_hmac(
+        mut self,
+        access_key_id: impl Into<String>,
+        secret_key: impl Into<String>,
+    ) -> Self {
         self.access_key_id = Some(access_key_id.into());
         self.secret_key = Some(secret_key.into());
         self.auth_mode = AuthMode::Hmac;
         self
     }
 
-    pub fn with_api_key(mut self, access_key_id: impl Into<String>, secret_key: impl Into<String>) -> Self {
+    pub fn with_api_key(
+        mut self,
+        access_key_id: impl Into<String>,
+        secret_key: impl Into<String>,
+    ) -> Self {
         self.access_key_id = Some(access_key_id.into());
         self.secret_key = Some(secret_key.into());
         self.auth_mode = AuthMode::ApiKey;

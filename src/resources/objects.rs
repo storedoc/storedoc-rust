@@ -254,7 +254,9 @@ impl ObjectsResource {
         let rand_suffix = uuid::Uuid::new_v4().simple().to_string();
         let temp_path = dest.with_file_name(format!(
             "{}.part-{}",
-            dest.file_name().and_then(|s| s.to_str()).unwrap_or("download"),
+            dest.file_name()
+                .and_then(|s| s.to_str())
+                .unwrap_or("download"),
             &rand_suffix[..12]
         ));
 
@@ -553,9 +555,10 @@ impl ObjectsResource {
                 if aborted.load(Ordering::Relaxed) {
                     break;
                 }
-                let permit = sem.clone().acquire_owned().await.map_err(|e| {
-                    StoreDocError::Network(format!("Upload semaphore closed: {e}"))
-                })?;
+                let permit =
+                    sem.clone().acquire_owned().await.map_err(|e| {
+                        StoreDocError::Network(format!("Upload semaphore closed: {e}"))
+                    })?;
                 if aborted.load(Ordering::Relaxed) {
                     break;
                 }

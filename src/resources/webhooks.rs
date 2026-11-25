@@ -41,7 +41,12 @@ impl WebhooksResource {
 
         let res: WebhookListResponse = self
             .http
-            .request_json(Method::GET, "storage/webhooks", query.as_deref(), None::<&()>)
+            .request_json(
+                Method::GET,
+                "storage/webhooks",
+                query.as_deref(),
+                None::<&()>,
+            )
             .await?;
 
         Ok(match res {

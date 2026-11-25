@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use serde::Serialize;
+use std::collections::HashMap;
 use thiserror::Error;
 
 pub type Result<T> = std::result::Result<T, StoreDocError>;

@@ -14,7 +14,10 @@ fn canonicalizes_uri_like_server() {
         canonicalize_uri("/api/storage/buckets?page=2&per_page=10"),
         "storage/buckets?page=2&per_page=10"
     );
-    assert_eq!(canonicalize_uri("///storage/objects/123"), "storage/objects/123");
+    assert_eq!(
+        canonicalize_uri("///storage/objects/123"),
+        "storage/objects/123"
+    );
     assert_eq!(canonicalize_uri("/api"), "");
 }
 
