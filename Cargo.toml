@@ -1,0 +1,28 @@
+[package]
+name = "storedoc"
+version = "1.0.0"
+edition = "2021"
+description = "Official StoreDoc SDK for Rust and Tauri applications"
+license = "MIT"
+repository = "https://github.com/bhsorg/storedoc-rust"
+readme = "README.md"
+keywords = ["storedoc", "storage", "s3", "tauri", "sdk"]
+categories = ["api-bindings", "web-programming::http-client"]
+
+[dependencies]
+futures-util = "0.3"
+hex = "0.4"
+hmac = "0.12"
+md-5 = "0.10"
+rand = "0.8"
+reqwest = { version = "0.12", default-features = false, features = ["json", "multipart", "rustls-tls", "stream"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+thiserror = "2"
+tokio = { version = "1", features = ["fs", "io-util", "macros", "sync", "time"] }
+url = "2"
+uuid = { version = "1", features = ["v4"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
