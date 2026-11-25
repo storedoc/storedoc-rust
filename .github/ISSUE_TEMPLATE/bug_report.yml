@@ -1,0 +1,47 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in storedoc-rust
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to report a bug! Please fill out the details below.
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what went wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Minimal Rust/Tauri code snippet or steps to reproduce the issue.
+      placeholder: |
+        ```rust
+        let client = StoreDocClient::new(...)?;
+        ```
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs Actual behavior
+      description: What did you expect to happen, and what happened instead?
+    validations:
+      required: true
+  - type: input
+    id: crate-version
+    attributes:
+      label: storedoc crate version / commit
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: input
+    id: rust-env
+    attributes:
+      label: Environment (Rust version, Tauri version, OS)
+      placeholder: "rustc 1.96.0, Tauri v2, Windows 11"
+    validations:
+      required: true
